@@ -6,8 +6,317 @@
   <title>Autoescuelas de Sevilla – Nº1 en Aprobados</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* ============================================
+       AUTH MODAL
+    ============================================ */
+    .auth-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-overlay.visible { display: flex; }
+
+    .auth-modal {
+      background: #fff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      margin: 16px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+      overflow: hidden;
+      animation: modalIn .25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity:0; transform:translateY(20px) scale(.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    .auth-modal-header {
+      background: linear-gradient(135deg, #1a2940 0%, #2c4a6e 100%);
+      padding: 28px 32px 22px;
+      color: #fff;
+    }
+    .auth-modal-header h2 {
+      margin: 0 0 4px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+    .auth-modal-header p {
+      margin: 0;
+      font-size: 13px;
+      opacity: .75;
+    }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 14px;
+      background: none;
+      border: none;
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #999;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all .2s;
+    }
+    .auth-tab.active {
+      color: #1a2940;
+      border-bottom-color: #F5821F;
+    }
+
+    .auth-body { padding: 26px 32px 32px; }
+
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+
+    .auth-field {
+      margin-bottom: 16px;
+    }
+    .auth-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+    .auth-field input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Barlow', sans-serif;
+      background: #fafafa;
+      transition: border-color .2s, background .2s;
+      box-sizing: border-box;
+    }
+    .auth-field input:focus {
+      outline: none;
+      border-color: #F5821F;
+      background: #fff;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #F5821F, #e06010);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: opacity .2s, transform .15s;
+    }
+    .auth-btn:hover { opacity:.9; transform:translateY(-1px); }
+    .auth-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+    .auth-msg {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+      text-align: center;
+    }
+    .auth-msg.error { background:#fdecea; color:#c62828; display:block; }
+    .auth-msg.success { background:#e8f5e9; color:#2e7d32; display:block; }
+
+    .auth-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+      opacity: .7;
+    }
+    .auth-close:hover { opacity:1; }
+    .auth-modal-header { position: relative; }
+
+    /* ============================================
+       NAV — botón usuario
+    ============================================ */
+    .nav-auth-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      background: #F5821F;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s;
+    }
+    .nav-auth-btn:hover { background:#e06010; }
+    .nav-auth-btn svg { flex-shrink:0; }
+
+    /* Dropdown usuario */
+    .nav-user-menu {
+      position: relative;
+    }
+    .nav-user-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.18);
+      min-width: 200px;
+      z-index: 9990;
+      overflow: hidden;
+    }
+    .nav-user-dropdown.visible { display: block; }
+    .nav-user-info {
+      padding: 14px 16px;
+      background: #f8f8f8;
+      border-bottom: 1px solid #eee;
+    }
+    .nav-user-info small { display:block; font-size:11px; color:#999; margin-bottom:2px; }
+    .nav-user-info strong { font-size:13px; color:#222; word-break:break-all; }
+    .nav-user-dropdown a, .nav-user-dropdown button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 11px 16px;
+      background: none;
+      border: none;
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .nav-user-dropdown a:hover,
+    .nav-user-dropdown button:hover { background:#f0f0f0; }
+    .nav-user-dropdown .logout-btn { color:#c62828; }
+
+    /* ============================================
+       FORM — bloqueo si no está logueado
+    ============================================ */
+    .form-locked-msg {
+      display: none;
+      text-align: center;
+      padding: 20px 10px;
+      color: #888;
+      font-size: 13.5px;
+    }
+    .form-locked-msg button {
+      margin-top: 10px;
+      padding: 9px 22px;
+      background: #F5821F;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+    }
+
+    /* ============================================
+       ERROR / SUCCESS mensajes en formulario
+    ============================================ */
+    .msg-error {
+      display: none;
+      background: #fdecea;
+      color: #c62828;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .btn-enviar:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+  </style>
 </head>
 <body>
+
+<!-- ====== AUTH MODAL ====== -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-modal">
+    <div class="auth-modal-header">
+      <h2 id="auth-modal-title">Accede a tu cuenta</h2>
+      <p id="auth-modal-sub">Para dejar una opinión necesitas estar registrado</p>
+      <button class="auth-close" onclick="cerrarAuth()">✕</button>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Iniciar sesión</button>
+      <button class="auth-tab" id="tab-registro" onclick="switchTab('registro')">Crear cuenta</button>
+    </div>
+
+    <div class="auth-body">
+      <!-- LOGIN -->
+      <div class="auth-form active" id="form-login">
+        <div class="auth-field">
+          <label>Correo electrónico</label>
+          <input type="email" id="login-email" placeholder="tucorreo@email.com" autocomplete="email" />
+        </div>
+        <div class="auth-field">
+          <label>Contraseña</label>
+          <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <button class="auth-btn" id="btn-login" onclick="doLogin()">Entrar →</button>
+        <div class="auth-msg" id="login-msg"></div>
+      </div>
+
+      <!-- REGISTRO -->
+      <div class="auth-form" id="form-registro">
+        <div class="auth-field">
+          <label>Nombre</label>
+          <input type="text" id="reg-nombre" placeholder="Tu nombre" autocomplete="name" />
+        </div>
+        <div class="auth-field">
+          <label>Correo electrónico</label>
+          <input type="email" id="reg-email" placeholder="tucorreo@email.com" autocomplete="email" />
+        </div>
+        <div class="auth-field">
+          <label>Contraseña</label>
+          <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+        </div>
+        <button class="auth-btn" id="btn-registro" onclick="doRegistro()">Crear cuenta →</button>
+        <div class="auth-msg" id="reg-msg"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ====== HEADER ====== -->
 <header class="nav-header">
@@ -49,6 +358,26 @@
       <a href="autobus/permisoD.html" class="nav-item">Autobús</a>
       <a href="#" class="nav-item">Sedes</a>
       <a href="#" class="nav-item">Contacto</a>
+
+      <!-- AUTH en el nav -->
+      <div class="nav-user-menu" id="nav-user-menu">
+        <!-- Se rellena con JS según estado de sesión -->
+        <button class="nav-auth-btn" id="nav-login-btn" onclick="abrirAuth()">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Entrar
+        </button>
+        <button class="nav-auth-btn" id="nav-user-btn" style="display:none" onclick="toggleUserDropdown()">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span id="nav-user-name">Mi cuenta</span> ▾
+        </button>
+        <div class="nav-user-dropdown" id="nav-user-dropdown">
+          <div class="nav-user-info">
+            <small>Conectado como</small>
+            <strong id="nav-user-email">—</strong>
+          </div>
+          <button class="logout-btn" onclick="doLogout()">🚪 Cerrar sesión</button>
+        </div>
+      </div>
     </nav>
   </div>
 </header>
@@ -138,108 +467,207 @@
 // =============================================
 // CONFIGURACIÓN SUPABASE
 // =============================================
-const SUPABASE_URL  = 'https://doyqkcwewsrmjcaxbjjf.supabase.co';
-const SUPABASE_KEY  = 'sb_publishable_xHEuorzVQ6AVSsOdgCJ5cA_gTer3EKo';
-
+const SUPABASE_URL = 'https://doyqkcwewsrmjcaxbjjf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_xHEuorzVQ6AVSsOdgCJ5cA_gTer3EKo';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// =============================================
+// ESTADO DE SESIÓN
+// =============================================
+let usuarioActual = null;
+
+async function initAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    usuarioActual = session.user;
+    actualizarNavUsuario(true);
+  }
+
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    usuarioActual = session?.user ?? null;
+    actualizarNavUsuario(!!usuarioActual);
+    // Re-renderizar para mostrar/ocultar formularios
+    renderTodas(zonaActual);
+  });
+}
+
+function actualizarNavUsuario(logueado) {
+  const btnLogin = document.getElementById('nav-login-btn');
+  const btnUser  = document.getElementById('nav-user-btn');
+  const emailEl  = document.getElementById('nav-user-email');
+  const nameEl   = document.getElementById('nav-user-name');
+
+  if (logueado && usuarioActual) {
+    btnLogin.style.display = 'none';
+    btnUser.style.display  = 'flex';
+    const email = usuarioActual.email || '';
+    emailEl.textContent = email;
+    // Mostrar nombre si existe en metadata, sino email acortado
+    const nombre = usuarioActual.user_metadata?.nombre_display || email.split('@')[0];
+    nameEl.textContent = nombre;
+  } else {
+    btnLogin.style.display = 'flex';
+    btnUser.style.display  = 'none';
+  }
+}
+
+// =============================================
+// AUTH MODAL — ABRIR / CERRAR / TABS
+// =============================================
+function abrirAuth(tabInicial = 'login') {
+  document.getElementById('auth-overlay').classList.add('visible');
+  switchTab(tabInicial);
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarAuth() {
+  document.getElementById('auth-overlay').classList.remove('visible');
+  document.body.style.overflow = '';
+  // Limpiar mensajes
+  ['login-msg','reg-msg'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'auth-msg';
+    el.textContent = '';
+  });
+}
+
+function switchTab(tab) {
+  document.getElementById('form-login').classList.toggle('active', tab === 'login');
+  document.getElementById('form-registro').classList.toggle('active', tab === 'registro');
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-registro').classList.toggle('active', tab === 'registro');
+}
+
+// Cerrar al hacer click fuera del modal
+document.getElementById('auth-overlay').addEventListener('click', function(e) {
+  if (e.target === this) cerrarAuth();
+});
+
+// =============================================
+// LOGIN
+// =============================================
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const btn   = document.getElementById('btn-login');
+  const msg   = document.getElementById('login-msg');
+
+  msg.className = 'auth-msg';
+  msg.textContent = '';
+
+  if (!email || !pass) {
+    msg.className = 'auth-msg error';
+    msg.textContent = 'Por favor, rellena todos los campos.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+
+  btn.disabled = false;
+  btn.textContent = 'Entrar →';
+
+  if (error) {
+    msg.className = 'auth-msg error';
+    msg.textContent = error.message.includes('Invalid') 
+      ? '❌ Email o contraseña incorrectos.' 
+      : '❌ ' + error.message;
+    return;
+  }
+
+  msg.className = 'auth-msg success';
+  msg.textContent = '✅ ¡Bienvenido/a!';
+  setTimeout(() => cerrarAuth(), 900);
+}
+
+// =============================================
+// REGISTRO
+// =============================================
+async function doRegistro() {
+  const nombre = document.getElementById('reg-nombre').value.trim();
+  const email  = document.getElementById('reg-email').value.trim();
+  const pass   = document.getElementById('reg-pass').value;
+  const btn    = document.getElementById('btn-registro');
+  const msg    = document.getElementById('reg-msg');
+
+  msg.className = 'auth-msg';
+  msg.textContent = '';
+
+  if (!nombre || !email || !pass) {
+    msg.className = 'auth-msg error';
+    msg.textContent = 'Por favor, rellena todos los campos.';
+    return;
+  }
+  if (pass.length < 6) {
+    msg.className = 'auth-msg error';
+    msg.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Creando cuenta...';
+
+  const { error } = await supabaseClient.auth.signUp({
+    email,
+    password: pass,
+    options: {
+      data: { nombre_display: nombre }
+    }
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Crear cuenta →';
+
+  if (error) {
+    msg.className = 'auth-msg error';
+    msg.textContent = '❌ ' + (error.message.includes('already') 
+      ? 'Este email ya está registrado.' 
+      : error.message);
+    return;
+  }
+
+  msg.className = 'auth-msg success';
+  msg.textContent = '✅ ¡Cuenta creada! Revisa tu email para confirmarla y luego inicia sesión.';
+}
+
+// =============================================
+// LOGOUT
+// =============================================
+async function doLogout() {
+  await supabaseClient.auth.signOut();
+  document.getElementById('nav-user-dropdown').classList.remove('visible');
+}
+
+// =============================================
+// DROPDOWN DE USUARIO EN NAV
+// =============================================
+function toggleUserDropdown() {
+  document.getElementById('nav-user-dropdown').classList.toggle('visible');
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.nav-user-menu')) {
+    document.getElementById('nav-user-dropdown').classList.remove('visible');
+  }
+});
 
 // =============================================
 // DATOS DE LAS SEDES
 // =============================================
 const sedes = [
-  {
-    id: 1,
-    nombre: "C/ Enramadilla",
-    zona: "centro",
-    direccion: "Cl. Enramadilla, 8, 41018 Sevilla",
-    horario: "Lun–Vie: 10:00–14:00 / 16:30–20:30",
-    foto: "imagenes/sedes/ernramadilla.jpg",
-    gradient: "linear-gradient(135deg, #1a2940 0%, #2c4a6e 100%)",
-    emoji: "🚗"
-  },
-  {
-    id: 3,
-    nombre: "Av. Reina Mercedes",
-    zona: "sur",
-    direccion: "Av. de la Reina Mercedes, 17, 41012 Sevilla",
-    horario: "Lun–Vie: 10:00–14:00 / 16:30–20:30",
-    foto: "imagenes/sedes/reina_mercedes.jpg",
-    gradient: "linear-gradient(135deg, #c94b4b 0%, #4b134f 100%)",
-    emoji: "🚦"
-  },
-  {
-    id: 4,
-    nombre: "Pino Montano",
-    zona: "norte",
-    direccion: "C. Esparteros, 5, Norte, 41015 Sevilla",
-    horario: "Lun–Vie: 10:00–14:00 / 16:30–20:30",
-    foto: "imagenes/sedes/pino_montano.jpg",
-    gradient: "linear-gradient(135deg, #1a6b3c 0%, #2c8a5e 100%)",
-    emoji: "🌿"
-  },
-  {
-    id: 5,
-    nombre: "Bermejales",
-    zona: "sur",
-    direccion: "Av. de Alemania, 8, 41012 Sevilla",
-    horario: "Lun–Vie: 10:00–14:00 / 16:30–20:30",
-    foto: "imagenes/sedes/bermejales.webp",
-    gradient: "linear-gradient(135deg, #b06ab3 0%, #4568dc 100%)",
-    emoji: "🏙️"
-  },
-  {
-    id: 6,
-    nombre: "C/ Luis Montoto",
-    zona: "este",
-    direccion: "C. Luis Montoto, 105, 41007 Sevilla",
-    horario: "Lun–Vie: 10:00–14:00 / 16:30–20:30",
-    foto: "imagenes/sedes/Montoto.jpg",
-    gradient: "linear-gradient(135deg, #f7971e 0%, #ffd200 100%)",
-    emoji: "⭐"
-  },
-  {
-    id: 7,
-    nombre: "Sevilla Este",
-    zona: "este",
-    direccion: "Av. de Emilio Lemos, 18, 41020 Sevilla",
-    horario: "Lun–Vie: 10:00–14:00 / 16:30–20:30",
-    foto: "imagenes/sedes/sevilla_este.jpg",
-    gradient: "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
-    emoji: "🌆"
-  },
-  {
-    id: 9,
-    nombre: "Carretera de Carmona",
-    zona: "este",
-    direccion: "Ctra. de Carmona, 6, 41008 Sevilla",
-    horario: "Lun–Vie: 10:00–14:00 / 16:30–20:30",
-    foto: "imagenes/sedes/carretera_carmona.jpg",
-    gradient: "linear-gradient(135deg, #373b44 0%, #4286f4 100%)",
-    emoji: "🛤️"
-  },
-  {
-    id: 10,
-    nombre: "Av. República Argentina",
-    zona: "centro",
-    direccion: "Av. de la República Argentina, 39, 41011 Sevilla",
-    horario: "Lun–Vie: 10:00–14:00 / 16:30–20:30",
-    foto: "imagenes/sedes/republica_argentina.png",
-    gradient: "linear-gradient(135deg, #c31432 0%, #240b36 100%)",
-    emoji: "🏛️"
-  },
-  {
-    id: 13,
-    nombre: "Dos Hermanas",
-    zona: "sur",
-    direccion: "C. Romera, 7, 41701 Dos Hermanas, Sevilla",
-    horario: "Lun–Vie: 10:00–14:00 / 16:30–20:30",
-    foto: "imagenes/sedes/dos_hermanas.jpg",
-    gradient: "linear-gradient(135deg, #218a27 0%, #2EB135 100%)",
-    emoji: "🌳"
-  }
+  { id:1,  nombre:"C/ Enramadilla",        zona:"centro", direccion:"Cl. Enramadilla, 8, 41018 Sevilla",                   horario:"Lun–Vie: 10:00–14:00 / 16:30–20:30", foto:"imagenes/sedes/ernramadilla.jpg",       gradient:"linear-gradient(135deg,#1a2940 0%,#2c4a6e 100%)",   emoji:"🚗" },
+  { id:3,  nombre:"Av. Reina Mercedes",    zona:"sur",    direccion:"Av. de la Reina Mercedes, 17, 41012 Sevilla",          horario:"Lun–Vie: 10:00–14:00 / 16:30–20:30", foto:"imagenes/sedes/reina_mercedes.jpg",     gradient:"linear-gradient(135deg,#c94b4b 0%,#4b134f 100%)",   emoji:"🚦" },
+  { id:4,  nombre:"Pino Montano",          zona:"norte",  direccion:"C. Esparteros, 5, Norte, 41015 Sevilla",               horario:"Lun–Vie: 10:00–14:00 / 16:30–20:30", foto:"imagenes/sedes/pino_montano.jpg",       gradient:"linear-gradient(135deg,#1a6b3c 0%,#2c8a5e 100%)",   emoji:"🌿" },
+  { id:5,  nombre:"Bermejales",            zona:"sur",    direccion:"Av. de Alemania, 8, 41012 Sevilla",                    horario:"Lun–Vie: 10:00–14:00 / 16:30–20:30", foto:"imagenes/sedes/bermejales.webp",        gradient:"linear-gradient(135deg,#b06ab3 0%,#4568dc 100%)",   emoji:"🏙️" },
+  { id:6,  nombre:"C/ Luis Montoto",       zona:"este",   direccion:"C. Luis Montoto, 105, 41007 Sevilla",                  horario:"Lun–Vie: 10:00–14:00 / 16:30–20:30", foto:"imagenes/sedes/Montoto.jpg",            gradient:"linear-gradient(135deg,#f7971e 0%,#ffd200 100%)",   emoji:"⭐" },
+  { id:7,  nombre:"Sevilla Este",          zona:"este",   direccion:"Av. de Emilio Lemos, 18, 41020 Sevilla",               horario:"Lun–Vie: 10:00–14:00 / 16:30–20:30", foto:"imagenes/sedes/sevilla_este.jpg",       gradient:"linear-gradient(135deg,#0f2027 0%,#2c5364 100%)",   emoji:"🌆" },
+  { id:9,  nombre:"Carretera de Carmona",  zona:"este",   direccion:"Ctra. de Carmona, 6, 41008 Sevilla",                   horario:"Lun–Vie: 10:00–14:00 / 16:30–20:30", foto:"imagenes/sedes/carretera_carmona.jpg",  gradient:"linear-gradient(135deg,#373b44 0%,#4286f4 100%)",   emoji:"🛤️" },
+  { id:10, nombre:"Av. República Argentina",zona:"centro",direccion:"Av. de la República Argentina, 39, 41011 Sevilla",     horario:"Lun–Vie: 10:00–14:00 / 16:30–20:30", foto:"imagenes/sedes/republica_argentina.png",gradient:"linear-gradient(135deg,#c31432 0%,#240b36 100%)",   emoji:"🏛️" },
+  { id:13, nombre:"Dos Hermanas",          zona:"sur",    direccion:"C. Romera, 7, 41701 Dos Hermanas, Sevilla",            horario:"Lun–Vie: 10:00–14:00 / 16:30–20:30", foto:"imagenes/sedes/dos_hermanas.jpg",       gradient:"linear-gradient(135deg,#218a27 0%,#2EB135 100%)",   emoji:"🌳" }
 ];
 
-// Estado de comentarios en memoria (se carga desde Supabase)
 const comentariosLocales = {};
 sedes.forEach(s => { comentariosLocales[s.id] = []; });
 
@@ -252,12 +680,8 @@ async function cargarResenas() {
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('Error cargando reseñas:', error.message);
-    return;
-  }
+  if (error) { console.error('Error cargando reseñas:', error.message); return; }
 
-  // Distribuir reseñas por sede
   sedes.forEach(s => { comentariosLocales[s.id] = []; });
   data.forEach(r => {
     if (comentariosLocales[r.sede_id] !== undefined) {
@@ -276,10 +700,10 @@ async function cargarResenas() {
 
 function formatFecha(isoString) {
   const diff = (Date.now() - new Date(isoString)) / 1000;
-  if (diff < 60)         return 'Ahora mismo';
-  if (diff < 3600)       return `Hace ${Math.floor(diff/60)} min`;
-  if (diff < 86400)      return `Hace ${Math.floor(diff/3600)}h`;
-  if (diff < 604800)     return `Hace ${Math.floor(diff/86400)} días`;
+  if (diff < 60)     return 'Ahora mismo';
+  if (diff < 3600)   return `Hace ${Math.floor(diff/60)} min`;
+  if (diff < 86400)  return `Hace ${Math.floor(diff/3600)}h`;
+  if (diff < 604800) return `Hace ${Math.floor(diff/86400)} días`;
   return new Date(isoString).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' });
 }
 
@@ -290,6 +714,58 @@ function renderEstrellas(n) {
   return Array.from({length:5}, (_,i) =>
     `<span style="color:${i<n?'#f5c518':'#ddd'};font-size:13px">★</span>`
   ).join('');
+}
+
+function renderFormulario(sede) {
+  if (!usuarioActual) {
+    return `
+      <div class="form-locked-msg" style="display:block">
+        🔒 Para dejar tu opinión necesitas iniciar sesión.
+        <br>
+        <button onclick="abrirAuth('login')">Entrar / Registrarse</button>
+      </div>`;
+  }
+
+  return `
+    <div class="form-titulo">✍️ Dejar un comentario</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tu nombre</label>
+        <input type="text" id="nombre-${sede.id}" placeholder="Ej: María G."
+               value="${(usuarioActual.user_metadata?.nombre_display || '').split(' ')[0]}" />
+      </div>
+      <div class="form-group">
+        <label>Tipo de comentario</label>
+        <select id="categoria-${sede.id}">
+          <option value="">Selecciona...</option>
+          <option value="teórico">🎓 Clase Teórica</option>
+          <option value="práctico">🚗 Clase Práctica</option>
+          <option value="examen">📋 Examen</option>
+          <option value="atención">👋 Atención al Cliente</option>
+          <option value="precios">💰 Precios / Tarifas</option>
+          <option value="general">⭐ Opinión General</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Valoración</label>
+      <div class="stars-input" id="stars-${sede.id}" data-valor="0">
+        ${[1,2,3,4,5].map(n =>
+          `<span onclick="setEstrella(${sede.id},${n})"
+                 onmouseover="hoverEstrella(${sede.id},${n})"
+                 onmouseout="unhoverEstrella(${sede.id})">★</span>`
+        ).join('')}
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Tu comentario</label>
+      <textarea id="texto-${sede.id}" placeholder="Cuéntanos tu experiencia en esta sede..."></textarea>
+    </div>
+    <button class="btn-enviar" id="btn-enviar-${sede.id}" onclick="enviarComentario(${sede.id})">
+      Publicar comentario
+    </button>
+    <div class="msg-exito" id="exito-${sede.id}">✅ ¡Comentario publicado! Gracias por tu opinión.</div>
+    <div class="msg-error" id="error-${sede.id}"></div>`;
 }
 
 function renderCard(sede) {
@@ -343,53 +819,10 @@ function renderCard(sede) {
 
       <div class="comentarios-panel" id="panel-${sede.id}">
         <div class="comentarios-inner">
-
           <div class="comentarios-lista" id="lista-${sede.id}">
             ${comentariosHTML}
           </div>
-
-          <div class="form-titulo">✍️ Dejar un comentario</div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Tu nombre</label>
-              <input type="text" id="nombre-${sede.id}" placeholder="Ej: María G." />
-            </div>
-            <div class="form-group">
-              <label>Tipo de comentario</label>
-              <select id="categoria-${sede.id}">
-                <option value="">Selecciona...</option>
-                <option value="teórico">🎓 Clase Teórica</option>
-                <option value="práctico">🚗 Clase Práctica</option>
-                <option value="examen">📋 Examen</option>
-                <option value="atención">👋 Atención al Cliente</option>
-                <option value="precios">💰 Precios / Tarifas</option>
-                <option value="general">⭐ Opinión General</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Valoración</label>
-            <div class="stars-input" id="stars-${sede.id}" data-valor="0">
-              ${[1,2,3,4,5].map(n =>
-                `<span onclick="setEstrella(${sede.id},${n})"
-                       onmouseover="hoverEstrella(${sede.id},${n})"
-                       onmouseout="unhoverEstrella(${sede.id})">★</span>`
-              ).join('')}
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Tu comentario</label>
-            <textarea id="texto-${sede.id}" placeholder="Cuéntanos tu experiencia en esta sede..."></textarea>
-          </div>
-
-          <button class="btn-enviar" id="btn-enviar-${sede.id}" onclick="enviarComentario(${sede.id})">
-            Publicar comentario
-          </button>
-          <div class="msg-exito" id="exito-${sede.id}">✅ ¡Comentario publicado! Gracias por tu opinión.</div>
-          <div class="msg-error" id="error-${sede.id}"></div>
+          ${renderFormulario(sede)}
         </div>
       </div>
     </div>`;
@@ -444,6 +877,8 @@ function unhoverEstrella(id) {
 // ENVIAR COMENTARIO → SUPABASE
 // =============================================
 async function enviarComentario(id) {
+  if (!usuarioActual) { abrirAuth('login'); return; }
+
   const nombre    = document.getElementById(`nombre-${id}`).value.trim();
   const categoria = document.getElementById(`categoria-${id}`).value;
   const texto     = document.getElementById(`texto-${id}`).value.trim();
@@ -453,16 +888,9 @@ async function enviarComentario(id) {
 
   msgError.style.display = 'none';
 
-  if (!nombre || !categoria || !texto) {
-    alert('Por favor, rellena todos los campos.');
-    return;
-  }
-  if (estrellas === 0) {
-    alert('Por favor, selecciona una valoración con estrellas.');
-    return;
-  }
+  if (!nombre || !categoria || !texto) { alert('Por favor, rellena todos los campos.'); return; }
+  if (estrellas === 0) { alert('Por favor, selecciona una valoración con estrellas.'); return; }
 
-  // Deshabilitar botón mientras se guarda
   btnEnviar.disabled = true;
   btnEnviar.textContent = 'Publicando...';
 
@@ -473,7 +901,8 @@ async function enviarComentario(id) {
       autor:     nombre,
       categoria: categoria,
       texto:     texto,
-      estrellas: estrellas
+      estrellas: estrellas,
+      user_id:   usuarioActual.id   // ← vincula la reseña al usuario
     }])
     .select()
     .single();
@@ -488,7 +917,6 @@ async function enviarComentario(id) {
     return;
   }
 
-  // Añadir al estado local inmediatamente (sin recargar todo)
   const nuevo = {
     autor:     data.autor,
     categoria: data.categoria,
@@ -498,7 +926,6 @@ async function enviarComentario(id) {
   };
   comentariosLocales[id].unshift(nuevo);
 
-  // Re-renderizar lista de comentarios de esta sede
   const lista = document.getElementById(`lista-${id}`);
   lista.innerHTML = comentariosLocales[id].map(c => `
     <div class="comentario-item">
@@ -511,20 +938,16 @@ async function enviarComentario(id) {
       <p class="comentario-fecha">🕐 ${c.fecha}</p>
     </div>`).join('');
 
-  // Limpiar formulario
   document.getElementById(`nombre-${id}`).value = '';
   document.getElementById(`categoria-${id}`).value = '';
   document.getElementById(`texto-${id}`).value = '';
   document.getElementById(`stars-${id}`).dataset.valor = '0';
-  document.getElementById(`stars-${id}`).querySelectorAll('span')
-    .forEach(s => s.classList.remove('activa','hover'));
+  document.getElementById(`stars-${id}`).querySelectorAll('span').forEach(s => s.classList.remove('activa','hover'));
 
-  // Actualizar contador en botón toggle
   const total = comentariosLocales[id].length;
   const btnToggle = document.querySelector(`.sede-card[data-id="${id}"] .toggle-comentarios span`);
   if (btnToggle) btnToggle.textContent = `💬 ${total} comentario${total!==1?'s':''} · Deja tu opinión`;
 
-  // Mostrar mensaje de éxito
   const msg = document.getElementById(`exito-${id}`);
   msg.style.display = 'block';
   setTimeout(() => msg.style.display = 'none', 3500);
@@ -540,12 +963,6 @@ document.addEventListener('click', e => {
     renderTodas(e.target.dataset.zona);
   }
 });
-
-// =============================================
-// INIT — cargar sedes y reseñas de Supabase
-// =============================================
-renderTodas();       // Renderiza cards vacías primero (rápido)
-cargarResenas();     // Luego llena con datos de Supabase
 
 // =============================================
 // HAMBURGER MENU (MÓVIL)
@@ -588,27 +1005,14 @@ document.addEventListener('click', function(e) {
     document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
   }
 });
-</script>
 
-<!-- Estilos extra para mensajes de error y botón deshabilitado -->
-<style>
-  .msg-error {
-    display: none;
-    background: #fdecea;
-    color: #c62828;
-    border-radius: 6px;
-    padding: 10px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    margin-top: 10px;
-    text-align: center;
-  }
-  .btn-enviar:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-  }
-</style>
+// =============================================
+// INIT
+// =============================================
+initAuth();
+renderTodas();
+cargarResenas();
+</script>
 
 </body>
 </html>
